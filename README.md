@@ -1,27 +1,9 @@
-# normal
+# go-idp-api
 
-```console
-$ go get github.com/pei0804/goa-stater
-$ cd normal
-$ make install
-$ make gen
-$ make run
-```
+Infraの構成情報などをBackendのCouchbaseを介してやり取りするAPIになる予定です。
 
 - [http://localhost:8080/](http://localhost:8080/)
 - [Swagger UI](http://localhost:8080/swaggerui/index.html)
 
-## change package name
+## 参考
 
-1.Makefile update
-
-```
-BEFORE:=github.com/pei0804/goa-stater/normal
-AFTER:=github.com/path/to <---change
-```
-
-2.Run
-
-```
-$ make change-package
-```
