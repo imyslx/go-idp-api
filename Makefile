@@ -2,6 +2,11 @@
 
 REPO:=github.com/imyslx/go-idp-api
 
+install:
+	@go get github.com/couchbase/gocb
+	@go get github.com/rs/zerolog/log
+	@go get gopkg.in/yaml.v2
+
 gen: clean generate
 
 bootstrap:

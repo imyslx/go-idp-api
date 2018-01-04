@@ -1,3 +1,6 @@
+### database config
+conf/couchbase.yaml
+
 ### goa ###
 app/
 client/

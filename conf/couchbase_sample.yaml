@@ -1,0 +1,15 @@
+development:
+  hosts: [127.0.0.1]
+  bucket: dev_database
+  user: dev_user
+  password: dev_password
+staging:
+  hosts: [stgcb_1, stgcb_2, stgcb_3]
+  bucket: stg_database
+  user: stg_user
+  password: stg_password
+production:
+  hosts: [cb_1, cb_2, cb_3]
+  bucket: dev_database
+  user: prd_user
+  password: prd_password
