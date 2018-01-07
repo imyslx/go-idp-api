@@ -9,7 +9,7 @@ import (
 var _ = Resource("hosts", func() {
 	BasePath("/hosts")
 
-	// Host一覧の取得
+	// 基礎情報を含んだHost一覧の取得
 	Action("list", func() {
 		Description("Host一覧に必要な情報の取得")
 		Routing(
@@ -17,18 +17,24 @@ var _ = Resource("hosts", func() {
 			GET(""),
 		)
 
-		// パラメータの定義
-		Payload(func() {
-			Member("hostname", String, "ホスト名")
-			Member("status", Boolean, "ステータス")
-			Member("role", ArrayOf(String), "役割")
-			Member("type", ArrayOf(String), "サーバタイプ")
-			Member("os", String, "OperatingSystem")
-			Member("ip", String, "IPセグメント")
-			Member("tag", ArrayOf(String), "サーバに付加されたタグ")
-		})
+		Payload(HostsPayload)
 
-		Response(OK, ArrayOf(BasicInfoMedia))
+		Response(OK, BasicInfoMedia)
+		Response(BadRequest, ErrorMedia)
+	})
+
+	// Host一覧の取得
+	Action("simplelist", func() {
+		Description("Host一覧に必要な情報の取得")
+		Routing(
+			// Endpoint -> http://localhost:8080/v1/hosts
+			GET("/simple"),
+		)
+
+		// パラメータの定義
+		Payload(HostsPayload)
+
+		Response(OK, SimpleListMedia)
 		Response(BadRequest, ErrorMedia)
 	})
 })
