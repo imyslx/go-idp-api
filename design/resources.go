@@ -11,7 +11,7 @@ var _ = Resource("hosts", func() {
 
 	// 基礎情報を含んだHost一覧の取得
 	Action("list", func() {
-		Description("Host一覧に必要な情報の取得")
+		Description("Hostの基本情報の取得")
 		Routing(
 			// Endpoint -> http://localhost:8080/v1/hosts
 			GET(""),
@@ -25,7 +25,7 @@ var _ = Resource("hosts", func() {
 
 	// Host一覧の取得
 	Action("simplelist", func() {
-		Description("Host一覧に必要な情報の取得")
+		Description("Host名のリストを取得")
 		Routing(
 			// Endpoint -> http://localhost:8080/v1/hosts
 			GET("/simple"),

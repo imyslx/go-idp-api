@@ -3,7 +3,6 @@ package controller
 import (
 	"encoding/json"
 
-	"github.com/couchbase/gocb"
 	"github.com/goadesign/goa"
 	"github.com/imyslx/go-idp-api/app"
 
@@ -13,6 +12,11 @@ import (
 // HostsController implements the hosts resource.
 type HostsController struct {
 	*goa.Controller
+}
+
+// CbResp : For response from couchbase.
+type CbResp struct {
+	Hostname string
 }
 
 // NewHostsController creates a hosts controller.
@@ -27,6 +31,10 @@ func (c *HostsController) List(ctx *app.ListHostsContext) error {
 	baseQuery :=
 		"SELECT Hostname, Status, `Role`, Type, OperatingSystem, Tag, Kernel, MonitoringStatus" +
 			" FROM `idp_database`"
+	// Create N1QL Query.
+	query := CreateQuery(ctx.Payload, baseQuery)
+	zlog.Debug().Msg("N1QL query: " + query)
+
 	rows := ExecuteQuery(ctx.Payload, baseQuery)
 
 	// Create responses.
@@ -62,6 +70,10 @@ func (c *HostsController) List(ctx *app.ListHostsContext) error {
 func (c *HostsController) Simplelist(ctx *app.SimplelistHostsContext) error {
 
 	baseQuery := "SELECT Hostname FROM `idp_database`"
+	// Create N1QL Query.
+	query := CreateQuery(ctx.Payload, baseQuery)
+	zlog.Debug().Msg("N1QL query: " + query)
+
 	rows := ExecuteQuery(ctx.Payload, baseQuery)
 
 	// Create responses.
@@ -69,39 +81,20 @@ func (c *HostsController) Simplelist(ctx *app.SimplelistHostsContext) error {
 	var row interface{}
 	var err error
 	for rows.Next(&row) {
-		str := new(app.SimpleListType)
+		str := new(CbResp)
 		jsonByte, err := json.Marshal(row)
 		if err != nil {
 			zlog.Error().Err(err).Msg("Could not marshal to json result rows.")
 			continue
 		}
 		json.Unmarshal(jsonByte, str)
-		resp.Hostname = append(resp.Hostname, str.Hostname[0])
+		resp.Hostname = append(resp.Hostname, str.Hostname)
 	}
 	if err = rows.Close(); err != nil {
 		zlog.Error().Err(err).Msg("Couldn't get all the rows.")
 	}
 
 	return ctx.OK(&resp)
-}
-
-// ExecuteQuery : Execute the query.
-func ExecuteQuery(params *app.HostsPayload, baseQuery string) gocb.QueryResults {
-
-	// Get connect to couchbase bucket.
-	bucket := GetCbBucket("")
-
-	// Create N1QL Query.
-	query := CreateQuery(params, baseQuery)
-	zlog.Debug().Msg("N1QL query: " + query)
-
-	// Execute
-	rows, err := bucket.ExecuteN1qlQuery(gocb.NewN1qlQuery(query), nil)
-	if err != nil {
-		zlog.Error().Err(err).Msg("Could not query in N1QL.")
-	}
-
-	return rows
 }
 
 // CreateQuery : Create query for n1ql.

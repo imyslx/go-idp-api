@@ -20,7 +20,7 @@ var BasicInfoMedia = MediaType("application/vnd.bi.result+json", func() {
 	})
 })
 
-// SimpleListMedia : サーバ基本情報を返却するMT
+// SimpleListMedia : サーバ名のArrayを返却するMT
 var SimpleListMedia = MediaType("application/vnd.sl.result+json", func() {
 	Description("MT for SimpleList.")
 	Attributes(func() {
@@ -32,13 +32,6 @@ var SimpleListMedia = MediaType("application/vnd.sl.result+json", func() {
 		Attribute("Hostname", ArrayOf(String), func() {
 			Example([]string{"commydb01", "commydb02", "vmdb08.local"})
 		})
-	})
-})
-
-// SimpleListType : サーバ基本情報をResponseするためのType
-var SimpleListType = Type("SimpleListType", func() {
-	Attribute("Hostname", ArrayOf(String), func() {
-		Example([]string{"commydb01", "commydb02", "vmdb08.local"})
 	})
 })
 

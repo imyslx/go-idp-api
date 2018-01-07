@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/couchbase/gocb"
+	"github.com/imyslx/go-idp-api/app"
 	zlog "github.com/rs/zerolog/log"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -81,4 +82,19 @@ func (cc CbConfig) GetConnection() *gocb.Bucket {
 	}
 	zlog.Debug().Msg("Success to Connect !")
 	return bucket
+}
+
+// ExecuteQuery : Execute the query.
+func ExecuteQuery(params *app.HostsPayload, query string) gocb.QueryResults {
+
+	// Get connect to couchbase bucket.
+	bucket := GetCbBucket("")
+
+	// Execute
+	rows, err := bucket.ExecuteN1qlQuery(gocb.NewN1qlQuery(query), nil)
+	if err != nil {
+		zlog.Error().Err(err).Msg("Could not query in N1QL.")
+	}
+
+	return rows
 }
