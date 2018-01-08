@@ -1,13 +1,17 @@
 ### database config
 conf/couchbase.yaml
 
+
 ### goa ###
 app/
 client/
 tool/
 swagger/
+swagger.go
+swaggerui.go
 js/
 schema/
+hosts.go
 
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o

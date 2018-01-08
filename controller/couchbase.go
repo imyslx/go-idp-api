@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/couchbase/gocb"
+	"github.com/imyslx/go-idp-api/app"
 	zlog "github.com/rs/zerolog/log"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -24,8 +25,9 @@ type CbConfig struct {
 	Password string   `yaml:"password"`
 }
 
-// GetCbConfig : Get config from yaml file.
-func GetCbConfig(filename string) (CbConfig, error) {
+// GetCbBucket : Get config from yaml file.
+func GetCbBucket(filename string) gocb.Bucket {
+
 	if filename == "" {
 		filename = "conf/couchbase.yaml"
 	}
@@ -35,7 +37,7 @@ func GetCbConfig(filename string) (CbConfig, error) {
 
 	yamlBytes, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return *cc, err
+		zlog.Fatal().Err(err).Msg("Could not get config file.")
 	}
 
 	err = yaml.Unmarshal(yamlBytes, cec)
@@ -43,14 +45,19 @@ func GetCbConfig(filename string) (CbConfig, error) {
 		env := os.Getenv("IDP_ENV")
 		switch env {
 		case "staging":
-			return cec.Stg, nil
+			cc = &cec.Stg
 		case "production":
-			return cec.Prd, nil
+			cc = &cec.Prd
 		default:
-			return cec.Dev, nil
+			cc = &cec.Dev
 		}
+	} else {
+		zlog.Fatal().Err(err).Msg("Could not unmarshal config file.")
 	}
-	return *cc, err
+
+	bucket := cc.GetConnection()
+
+	return *bucket
 }
 
 // GetConnection : Get connection to couchbase.
@@ -64,7 +71,7 @@ func (cc CbConfig) GetConnection() *gocb.Bucket {
 	if err != nil {
 		zlog.Fatal().Err(err).Msg("Cannot connect to couchbase.")
 	}
-	zlog.Debug().Msg("Try to connect " + cc.User + ":" + cc.Password + "¥n")
+	zlog.Debug().Msg("Try to connect " + cc.User + ":" + cc.Password)
 	cluster.Authenticate(gocb.PasswordAuthenticator{
 		Username: cc.User,
 		Password: cc.Password,
@@ -73,5 +80,21 @@ func (cc CbConfig) GetConnection() *gocb.Bucket {
 	if err != nil {
 		zlog.Fatal().Err(err).Msg("Cannot connect to bucket.")
 	}
+	zlog.Debug().Msg("Success to Connect !")
 	return bucket
+}
+
+// ExecuteQuery : Execute the query.
+func ExecuteQuery(params *app.HostsPayload, query string) gocb.QueryResults {
+
+	// Get connect to couchbase bucket.
+	bucket := GetCbBucket("")
+
+	// Execute
+	rows, err := bucket.ExecuteN1qlQuery(gocb.NewN1qlQuery(query), nil)
+	if err != nil {
+		zlog.Error().Err(err).Msg("Could not query in N1QL.")
+	}
+
+	return rows
 }
